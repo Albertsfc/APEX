@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX - Accounts Payable & Receivable Engine</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>APEX</h1>
+                <span class="badge">AI Engine</span>
+            </div>
+            <nav>
+                <a href="#" class="nav-item active" data-view="dashboard">Dashboard (DSO)</a>
+                <a href="#" class="nav-item" data-view="upload">Upload Fatura</a>
+                <a href="#" class="nav-item" data-view="reconciliation">Reconciliação</a>
+                <a href="#" class="nav-item" data-view="dunning">Dunning</a>
+                <a href="#" class="nav-item" data-view="fraud">Alertas de Fraude</a>
+            </nav>
+        </aside>
+        
+        <main class="content">
+            <header>
+                <h2>Visão Geral</h2>
+                <div class="system-status">
+                    <span class="status-indicator online"></span>
+                    <span>Sistema Online</span>
+                </div>
+            </header>
+            
+            <div id="view-dashboard" class="view active">
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>DSO Atual</h3>
+                        <div class="value">28.5 Dias</div>
+                    </div>
+                    <div class="card">
+                        <h3>Reconciliações Pendentes</h3>
+                        <div class="value">12</div>
+                    </div>
+                    <div class="card">
+                        <h3>Alertas de Fraude Abertos</h3>
+                        <div class="value warning">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-upload" class="view hidden">
+                <div class="card">
+                    <h3>Upload de Fatura (OCR via Tesseract + ML)</h3>
+                    <form id="upload-form">
+                        <input type="file" id="invoice-file" accept="application/pdf" required>
+                        <button type="submit" class="btn btn-primary">Processar Fatura</button>
+                    </form>
+                    <div id="upload-result"></div>
+                </div>
+            </div>
+
+            <div id="view-reconciliation" class="view hidden">
+                <div class="card">
+                    <h3>Reconciliações Aguardando Revisão</h3>
+                    <div id="reconciliation-list">Carregando...</div>
+                </div>
+            </div>
+
+            <div id="view-dunning" class="view hidden">
+                <div class="card">
+                    <h3>Campanhas de Cobrança (Dunning)</h3>
+                    <div id="dunning-list">Carregando...</div>
+                </div>
+            </div>
+
+            <div id="view-fraud" class="view hidden">
+                <div class="card">
+                    <h3>Alertas de Fraude (Isolation Forest)</h3>
+                    <div id="fraud-list">Carregando...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
