@@ -28,3 +28,6 @@ rapidfuzz==3.10.1
 python-dateutil==2.9.0
 schedule==1.2.2
 aiosmtplib==3.0.2
+
+# APEX dependencies
+
