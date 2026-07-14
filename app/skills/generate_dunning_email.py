@@ -1,3 +1,17 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
+from pydantic import BaseModel, Field
+from typing import Dict, Any, Optional
+from langchain_core.prompts import ChatPromptTemplate
+from app.llm_client import retry_llm_call
+import logging
+
+class DunningEmailOutput(BaseModel):
+    subject: str = Field(description="The subject line of the email")
+    body: str = Field(description="The main body text of the email")
+    tone: str = Field(description="The tone of the email")
+
 DUNNING_STAGES = {
     1: {
         "trigger_days": 7,     # dias após vencimento
@@ -21,14 +35,19 @@ DUNNING_STAGES = {
     },
 }
 
+@retry_llm_call
+def _call_llm_with_retries(llm_client: Any, prompt_value: Any) -> DunningEmailOutput:
+    structured_llm = llm_client.with_structured_output(DunningEmailOutput)
+    return structured_llm.invoke(prompt_value)
+
 def generate_dunning_email(
-    invoice: dict,
-    client: dict,
+    invoice: Dict[str, Any],
+    client: Dict[str, Any],
     days_overdue: int,
     stage: int,
     company_name: str,
-    llm_client=None
-) -> dict:
+    llm_client: Optional[Any] = None
+) -> Dict[str, Any]:
     """
     Gera e-mail de cobrança personalizado.
     Retorna { "subject": str, "body": str, "tone": str, "stage": int }
@@ -38,11 +57,28 @@ def generate_dunning_email(
 
     stage_info = DUNNING_STAGES[stage]
     tone = stage_info["tone"]
-
-    # Se LLM não disponível/configurado, usa offline template 
-    # (Pode ser estendido no Orchestrator)
     template = stage_info["offline_template"]
-    
+
+    if llm_client:
+        try:
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", f"You are an accounts receivable agent for {company_name}. Generate a {tone} dunning email."),
+                ("human", f"Client Name: {client.get('name', 'Client')}\nInvoice Number: {invoice.get('invoice_number', 'UNKNOWN')}\nAmount: ${invoice.get('total_amount', 0.0):.2f}\nDue Date: {invoice.get('due_date', 'UNKNOWN')}\nDays Overdue: {days_overdue}\nStage: {stage}")
+            ])
+            prompt_value = prompt.invoke({})
+            
+            output = _call_llm_with_retries(llm_client, prompt_value)
+            
+            return {
+                "subject": output.subject,
+                "body": output.body,
+                "tone": output.tone,
+                "stage": stage
+            }
+        except Exception as e:
+            logging.error(f"LLM dunning generation failed after retries: {e}. Falling back to offline template.")
+
+    # Se LLM não disponível ou falhou, usa offline template 
     body = template.format(
         client_name=client.get("name", "Client"),
         invoice_number=invoice.get("invoice_number", "UNKNOWN"),
