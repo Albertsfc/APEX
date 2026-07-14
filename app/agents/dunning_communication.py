@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from typing import Dict, Any
 from app.skills.generate_dunning_email import generate_dunning_email
 

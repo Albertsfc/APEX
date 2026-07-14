@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from typing import Dict, Any
 import logging
 

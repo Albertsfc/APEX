@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import aiosmtplib
 import logging
 from email.message import EmailMessage

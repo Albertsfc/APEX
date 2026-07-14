@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from typing import Dict, Any
 from app.skills.detect_duplicate_invoice import detect_duplicate_invoice
 from app.ml.isolation_forest import fraud_detector

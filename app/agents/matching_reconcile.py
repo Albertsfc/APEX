@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from typing import Dict, Any
 from app.skills.match_invoice_payment import match_invoice_to_payment
 from app.config import settings

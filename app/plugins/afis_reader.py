@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import sqlite3
 import logging
 from pathlib import Path

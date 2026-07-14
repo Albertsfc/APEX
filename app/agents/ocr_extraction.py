@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from typing import Dict, Any
 from app.skills.extract_invoice_fields import extract_invoice_fields
 

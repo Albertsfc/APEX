@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from fastapi import APIRouter
 
 from .invoices import router as invoices_router

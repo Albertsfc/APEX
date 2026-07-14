@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from dataclasses import dataclass, field
 from typing import Optional
 import re

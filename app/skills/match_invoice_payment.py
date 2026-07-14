@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import dateutil.parser
 
 def match_invoice_to_payment(

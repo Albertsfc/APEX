@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import rapidfuzz
 
 def detect_duplicate_invoice(

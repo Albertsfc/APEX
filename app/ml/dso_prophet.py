@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import pandas as pd
 from prophet import Prophet
 from app.config import settings

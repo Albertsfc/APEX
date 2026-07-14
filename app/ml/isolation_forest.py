@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import numpy as np
 from sklearn.ensemble import IsolationForest
 import pandas as pd

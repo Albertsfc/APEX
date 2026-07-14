@@ -1,3 +1,6 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 from typing import Dict, Any
 import pandas as pd
 from app.ml.dso_prophet import dso_forecaster
