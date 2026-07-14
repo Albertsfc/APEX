@@ -1,9 +1,23 @@
+"""
+APEX - AI Accounts Payable & Receivable Engine
+"""
 import sqlite3
 import logging
 from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from typing import Generator
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from sqlalchemy.engine import Engine
 from app.config import settings
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection: sqlite3.Connection, connection_record: object) -> None:
+    """Configures SQLite to use WAL mode for better concurrency."""
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.execute("PRAGMA synchronous=NORMAL")
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 engine = create_engine(
     f"sqlite:///{settings.APEX_DB_PATH}",
@@ -13,7 +27,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-def init_db():
+def init_db() -> None:
     """Initializes the APEX database using the raw schema.sql if it doesn't exist."""
     db_path = Path(settings.APEX_DB_PATH)
     if not db_path.exists():
@@ -27,7 +41,7 @@ def init_db():
         else:
             logging.error(f"schema.sql not found at {schema_path}")
 
-def get_db():
+def get_db() -> Generator[Session, None, None]:
     """Dependency for FastAPI endpoints."""
     db = SessionLocal()
     try:
