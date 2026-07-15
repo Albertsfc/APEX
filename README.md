@@ -121,8 +121,7 @@ APEX is built for SME finance teams, accountants, and AR/AP managers who need au
 ## Quickstart
 
 ```bash
-git clone https://github.com/Albertsfc/APEX.git
-cd APEX
+git clone https://github.com/afild/APEX.git
 pip install -r requirements.txt
 python run.py
 ```
@@ -160,8 +159,7 @@ python run.py
 
 ```bash
 # 1. Clone and navigate
-git clone https://github.com/Albertsfc/APEX.git
-cd APEX
+git clone https://github.com/afild/APEX.git
 
 # 2. Create virtual environment
 python -m venv venv
