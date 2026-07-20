@@ -8,6 +8,8 @@ from app.agents.ocr_extraction import run_ocr_agent
 from app.agents.fraud_detection import run_fraud_agent
 from app.agents.matching_reconcile import run_matching_agent
 from app.agents.afis_sync import run_afis_sync_agent
+from app.agents.semantic_approval import evaluate_invoice
+from app.agents.cfo_advisory import run_cfo_advisory
 
 # Definição estrita do Estado baseada no SDD
 class APEXAgentState(TypedDict, total=False):
@@ -21,6 +23,10 @@ class APEXAgentState(TypedDict, total=False):
     requires_human_review: bool
     dunning_stage: int
     dunning_email_sent: bool
+    semantic_approval_status: str
+    semantic_reason: str
+    cfo_insights: List[str]
+    dso_forecast: list
     errors: List[str]
 
 # Nós
@@ -68,6 +74,25 @@ def afis_sync_node(state: APEXAgentState) -> Dict[str, Any]:
         logging.error(f"AFIS Sync Node Error: {e}")
         return {"errors": state.get("errors", []) + [f"AFIS Sync Error: {str(e)}"]}
 
+def semantic_approval_node(state: APEXAgentState) -> Dict[str, Any]:
+    try:
+        res = evaluate_invoice(state, state.get("invoice_data", {}))
+        return {
+            "semantic_approval_status": res.get("semantic_approval_status"),
+            "semantic_reason": res.get("semantic_reason"),
+            "requires_human_review": res.get("semantic_approval_status") == "MANUAL_REVIEW"
+        }
+    except Exception as e:
+        return {"errors": state.get("errors", []) + [f"Semantic Error: {str(e)}"], "requires_human_review": True}
+
+def cfo_advisory_node(state: APEXAgentState) -> Dict[str, Any]:
+    try:
+        # Pass current dso_forecast to CFO
+        res = run_cfo_advisory(state, state.get("dso_forecast", []))
+        return {"cfo_insights": res.get("cfo_insights", [])}
+    except Exception as e:
+        return {"errors": state.get("errors", []) + [f"CFO Error: {str(e)}"]}
+
 def human_review_node(state: APEXAgentState) -> Dict[str, Any]:
     return {"requires_human_review": True}
 
@@ -88,7 +113,9 @@ workflow = StateGraph(APEXAgentState)
 workflow.add_node("ocr", ocr_node)
 workflow.add_node("fraud", fraud_node)
 workflow.add_node("match", match_node)
+workflow.add_node("semantic_approval", semantic_approval_node)
 workflow.add_node("sync", afis_sync_node)
+workflow.add_node("cfo_advisory", cfo_advisory_node)
 workflow.add_node("human_review", human_review_node)
 
 workflow.set_entry_point("ocr")
@@ -96,8 +123,16 @@ workflow.set_entry_point("ocr")
 # Regras de fluxo dinâmico
 workflow.add_conditional_edges("ocr", route_after_ocr, {"human_review": "human_review", "fraud_check": "fraud"})
 workflow.add_conditional_edges("fraud", route_after_fraud, {"human_review": "human_review", "reconcile": "match"})
-workflow.add_edge("match", "sync")
-workflow.add_edge("sync", END)
+workflow.add_edge("match", "semantic_approval")
+
+def route_after_semantic(state: APEXAgentState) -> str:
+    if state.get("semantic_approval_status") == "MANUAL_REVIEW":
+        return "human_review"
+    return "sync"
+
+workflow.add_conditional_edges("semantic_approval", route_after_semantic, {"human_review": "human_review", "sync": "sync"})
+workflow.add_edge("sync", "cfo_advisory")
+workflow.add_edge("cfo_advisory", END)
 workflow.add_edge("human_review", END)
 
 apex_orchestrator = workflow.compile()

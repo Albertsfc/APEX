@@ -10,6 +10,9 @@ from .fraud import router as fraud_router
 from .forecast import router as forecast_router
 from .reports import router as reports_router
 from .system import router as system_router
+from .payments import router as payments_router
+from .sync import router as sync_router
+from .webhooks import router as webhooks_router
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -20,3 +23,6 @@ api_router.include_router(fraud_router)
 api_router.include_router(forecast_router)
 api_router.include_router(reports_router)
 api_router.include_router(system_router)
+api_router.include_router(payments_router)
+api_router.include_router(sync_router)
+api_router.include_router(webhooks_router)

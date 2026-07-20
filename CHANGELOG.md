@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] - 2026-07-20
+### Added
+- Módulo de Sincronização Bidirecional Contábil (Accounting Sync) via `accounting_sync.py` e rotas `/api/v1/sync`.
+- Integração de Payment Rails para transferências via `external_pay.py` e rotas `/api/v1/payments`.
+- Agente Inteligente de Aprovação Semântica (Semantic Approvals) no fluxo LangGraph para automatizar aprovações de faturas comuns.
+- Agente Virtual AI CFO (`cfo_advisory.py`) para consumir previsões DSO e gerar recomendações de caixa em linguagem natural.
+- Gateway Multimodal de Ingestão via rotas `/api/v1/webhooks` com suporte a Vision LLMs para extração avançada de documentos.
+### Changed
+- Documentação `README.md` refatorada rigorosamente para adequação ao mercado de SMEs.
 ## [1.1.0] - 2026-07-13
 ### Changed
 - Refatoração de segurança "exhibit-grade" visando robustez para auditoria.

@@ -7,9 +7,9 @@
 [![Prophet](https://img.shields.io/badge/Prophet-1.1.5-orange.svg)](https://facebook.github.io/prophet/)
 [![NIST AI RMF](https://img.shields.io/badge/NIST%20AI%20RMF-1.0%20Aligned-blue.svg)](https://airc.nist.gov/RMF)
 
-> **An open-source AR/AP automation engine that ingests invoices via OCR, reconciles payments, forecasts DSO, detects fraud, and automates dunning — designed for Small and Medium Enterprises.**
+> **An open-source AR/AP automation engine that ingests invoices via OCR and Vision LLMs, reconciles payments, forecasts DSO, detects fraud, orchestrates dunning, syncs with external accounting platforms, and handles external payments.**
 
-APEX is an open-source accounts payable and receivable automation engine. It processes PDF invoices through an OCR pipeline, reconciles them against payment records, projects Days Sales Outstanding (DSO) with time-series forecasting, detects financial anomalies using Isolation Forest, and orchestrates dunning communications — all running locally with no cloud subscription required.
+APEX is an open-source accounts payable and receivable automation engine. It processes invoices through an OCR and Vision AI pipeline across multiple channels (email, messaging), reconciles them against payment records, projects Days Sales Outstanding (DSO) with time-series forecasting, detects financial anomalies using Isolation Forest and Semantic LLM validation, and orchestrates dunning communications. It features bidirectional sync with external accounting platforms and native rails for external payments.
 
 ---
 
@@ -17,13 +17,13 @@ APEX is an open-source accounts payable and receivable automation engine. It pro
 
 ![APEX Three-Layer Architecture](docs/images/layers.png)
 
-### Layer 1 — Document Ingestion (OCR Pipeline)
+### Layer 1 — Omnichannel Document Ingestion
 
-Extracts structured data from PDF invoices and scanned documents using Tesseract OCR. Validates fields (amount, date, vendor, line items), detects near-duplicate invoices using RapidFuzz fuzzy matching, and writes validated records to a local SQLite database.
+Extracts structured data from invoices and scanned documents using Tesseract OCR and Vision LLMs. Supports multi-channel ingestion (webhooks, email, messaging). Validates fields (amount, date, vendor, line items), detects near-duplicate invoices, and writes validated records to a local SQLite database.
 
 ```
-Input:  PDF invoices / scanned AR-AP documents
-Output: Structured invoice records — validated, deduplicated, persisted to SQLite
+Input:  Invoices via multi-channel (PDFs, images, messaging)
+Output: Structured invoice records — validated, deduplicated, persisted
 ```
 
 ### Layer 2 — AR/AP Intelligence
@@ -35,13 +35,13 @@ Input:  Invoice database + payment records
 Output: DSO forecast · fraud flags · reconciled AR/AP status · aging report
 ```
 
-### Layer 3 — Agentic Automation
+### Layer 3 — Agentic Automation & External Sync
 
-LangGraph orchestrates six specialist agents across the AR/AP lifecycle. Generates dunning email drafts via Anthropic Claude (or offline heuristics). Syncs processed financial outcomes back to the AFIS financial intelligence layer. Supports automated collection workflow scheduling.
+LangGraph orchestrates specialized agents across the AR/AP lifecycle, including a Virtual AI CFO for cash flow insights and a Semantic Approval agent for intelligent routing. Generates dunning email drafts. Syncs processed financial outcomes bidirectionally with external accounting platforms and executes transfers via external payment platforms.
 
 ```
-Input:  Reconciled records + DSO + fraud signals
-Output: Dunning emails · collection status · AFIS sync · audit trail
+Input:  Reconciled records + DSO + semantic signals
+Output: Dunning emails · CFO insights · external payments · accounting sync
 ```
 
 ---
@@ -77,6 +77,9 @@ graph TD
 | `/api/v1/forecast` | `GET` | DSO projections with time-series confidence bands |
 | `/api/v1/reports` | `GET` | Aging reports and AR/AP cash flow summaries |
 | `/api/v1/system` | `GET` | System status, AI mode (`llm` or `offline`), version |
+| `/api/v1/payments` | `POST` | Gateway for external payments and scheduling |
+| `/api/v1/sync` | `GET / POST` | Bidirectional sync with external platforms |
+| `/api/v1/webhooks` | `POST` | Omnichannel ingestion (messaging/email) |
 
 ### Stack
 
@@ -98,15 +101,15 @@ graph TD
 
 ## Key Design Decisions
 
-**Local-first, privacy by design.** All invoice documents and payment records stay on the SME's machine. The optional LLM integration sends only structured dunning context to the API — never raw invoice images or financial records.
+**Local-first, privacy by design.** All invoice documents and payment records stay on the SME's machine.
 
-**Zero-server dependency.** SQLite requires no database server. The entire engine starts with `python run.py`.
+**Semantic Approvals & Virtual CFO.** APEX utilizes LLMs not just for data extraction, but to semantically evaluate if an invoice requires human review, and provides a virtual AI CFO that outputs plain-text cash flow recommendations.
 
-**Works without an API key.** OCR ingestion, reconciliation, DSO forecasting, fraud detection, and all dashboards operate in full offline mode. The AI dunning agent degrades gracefully to deterministic email templates.
+**External Platform Integration.** Seamlessly integrates with external accounting platforms for bidirectional ledger syncing, and external payment platforms for one-click payment execution.
 
-**Offline-first dunning.** Even without Claude, APEX generates structured dunning communications using rule-based templates calibrated by overdue days, invoice amount, and payment history.
+**Offline-first dunning.** Even without Claude, APEX generates structured dunning communications using rule-based templates.
 
-**NIST AI RMF 1.0 alignment.** Every agent action, fraud flag, and AI-generated dunning draft is logged to a persistent audit trail following NIST governance principles: validity, reliability, explainability, and human oversight.
+**NIST AI RMF 1.0 alignment.** Every agent action is logged to a persistent audit trail following NIST governance principles.
 
 ---
 
