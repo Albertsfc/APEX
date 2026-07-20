@@ -16,7 +16,7 @@ logging.basicConfig(level=settings.LOG_LEVEL, format="%(asctime)s [%(levelname)s
 app = FastAPI(
     title="APEX - AI Accounts Payable & Receivable Engine",
     description="Engine for AR/AP automation, reconciliation, fraud detection, and dunning.",
-    version="1.0.0"
+    version="1.2.0"
 )
 
 app.add_middleware(

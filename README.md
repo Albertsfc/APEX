@@ -271,8 +271,8 @@ Areas where contributions are most needed:
 
 ## Changelog
 
-### Latest: v1.0.0
-- Full AR/AP automation pipeline with OCR, reconciliation, DSO forecast, and dunning
+### Latest: v1.2.0
+- Full AR/AP automation pipeline with Vision OCR, reconciliation, Semantic Approvals, AI CFO, and external integrations
 
 ---
 
